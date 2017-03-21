@@ -60,7 +60,8 @@ def build_model(sess, embedding_dim, batch_size):
         with tf.variable_scope("g_net"):
             c = sample_encoded_context(embeddings, model)
             z = tf.random_normal([batch_size, cfg.Z_DIM])
-            fake_images = model.get_generator(tf.concat(1, [c, z]))
+            #fake_images = model.get_generator(tf.concat(1, [c, z]))
+            fake_images = model.get_generator(tf.concat([c, z], 1))
         with tf.variable_scope("hr_g_net"):
             hr_c = sample_encoded_context(embeddings, model)
             hr_fake_images = model.hr_get_generator(fake_images, hr_c)
@@ -78,7 +79,8 @@ def build_model(sess, embedding_dim, batch_size):
 def drawCaption(img, caption):
     img_txt = Image.fromarray(img)
     # get a font
-    fnt = ImageFont.truetype('Pillow/Tests/fonts/FreeMono.ttf', 50)
+    #fnt = ImageFont.truetype('Pillow/Tests/fonts/FreeMono.ttf', 50)
+    fnt = ImageFont.truetype('/home/ubuntu/StackGAN/demo/FreeMono.ttf', 50)
     # get a drawing context
     d = ImageDraw.Draw(img_txt)
 

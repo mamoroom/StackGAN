@@ -7,10 +7,8 @@ from __future__ import unicode_literals
 import numpy as np
 import os
 import pickle
-#from misc.utils import get_image
-from utils import get_image
+from misc.utils import get_image
 import scipy.misc
-import pandas as pd
 
 # from glob import glob
 
@@ -20,7 +18,7 @@ import pandas as pd
 LR_HR_RETIO = 4
 IMSIZE = 256
 LOAD_SIZE = int(IMSIZE * 76 / 64)
-BIRD_DIR = 'Data/birds'
+FLOWER_DIR = 'Data/flowers'
 
 
 def load_filenames(data_dir):
@@ -31,38 +29,14 @@ def load_filenames(data_dir):
     return filenames
 
 
-def load_bbox(data_dir):
-    bbox_path = os.path.join(data_dir, 'CUB_200_2011/bounding_boxes.txt')
-    df_bounding_boxes = pd.read_csv(bbox_path,
-                                    delim_whitespace=True,
-                                    header=None).astype(int)
-    #
-    filepath = os.path.join(data_dir, 'CUB_200_2011/images.txt')
-    df_filenames = pd.read_csv(filepath, delim_whitespace=True, header=None)
-    filenames = df_filenames[1].tolist()
-    print('Total filenames: ', len(filenames), filenames[0])
-    #
-    filename_bbox = {img_file[:-4]: [] for img_file in filenames}
-    numImgs = len(filenames)
-    for i in xrange(0, numImgs):
-        # bbox = [x-left, y-top, width, height]
-        bbox = df_bounding_boxes.iloc[i][1:].tolist()
-
-        key = filenames[i][:-4]
-        filename_bbox[key] = bbox
-    #
-    return filename_bbox
-
-
-def save_data_list(inpath, outpath, filenames, filename_bbox):
+def save_data_list(inpath, outpath, filenames):
     hr_images = []
     lr_images = []
     lr_size = int(LOAD_SIZE / LR_HR_RETIO)
     cnt = 0
     for key in filenames:
-        bbox = filename_bbox[key]
-        f_name = '%s/CUB_200_2011/images/%s.jpg' % (inpath, key)
-        img = get_image(f_name, LOAD_SIZE, is_crop=True, bbox=bbox)
+        f_name = '%s/%s.jpg' % (inpath, key)
+        img = get_image(f_name, LOAD_SIZE, is_crop=False)
         img = img.astype('uint8')
         hr_images.append(img)
         lr_img = scipy.misc.imresize(img, [lr_size, lr_size], 'bicubic')
@@ -84,19 +58,17 @@ def save_data_list(inpath, outpath, filenames, filename_bbox):
         print('save to: ', outfile)
 
 
-def convert_birds_dataset_pickle(inpath):
-    # Load dictionary between image filename to its bbox
-    filename_bbox = load_bbox(inpath)
+def convert_flowers_dataset_pickle(inpath):
     # ## For Train data
     train_dir = os.path.join(inpath, 'train/')
     train_filenames = load_filenames(train_dir)
-    save_data_list(inpath, train_dir, train_filenames, filename_bbox)
+    save_data_list(inpath, train_dir, train_filenames)
 
     # ## For Test data
     test_dir = os.path.join(inpath, 'test/')
     test_filenames = load_filenames(test_dir)
-    save_data_list(inpath, test_dir, test_filenames, filename_bbox)
+    save_data_list(inpath, test_dir, test_filenames)
 
 
 if __name__ == '__main__':
-    convert_birds_dataset_pickle(BIRD_DIR)
+    convert_flowers_dataset_pickle(FLOWER_DIR)

@@ -61,7 +61,8 @@ def build_model(sess, embedding_dim, batch_size):
         with tf.variable_scope("g_net"):
             c = sample_encoded_context(embeddings, model)
             z = tf.random_normal([batch_size, cfg.Z_DIM])
-            fake_images = model.get_generator(tf.concat(1, [c, z]))
+	    #fake_images = model.get_generator(tf.concat(1, [c, z]))
+            fake_images = model.get_generator(tf.concat([c, z], 1))
         with tf.variable_scope("hr_g_net"):
             hr_c = sample_encoded_context(embeddings, model)
             hr_fake_images = model.hr_get_generator(fake_images, hr_c)
@@ -79,7 +80,8 @@ def build_model(sess, embedding_dim, batch_size):
 def drawCaption(img, caption):
     img_txt = Image.fromarray(img)
     # get a font
-    fnt = ImageFont.truetype('Pillow/Tests/fonts/FreeMono.ttf', 50)
+    #fnt = ImageFont.truetype('Pillow/Tests/fonts/FreeMono.ttf', 50)
+    fnt = ImageFont.truetype('/home/ubuntu/StackGAN/demo/FreeMono.ttf', 50)
     # get a drawing context
     d = ImageDraw.Draw(img_txt)
 
@@ -176,9 +178,9 @@ if __name__ == "__main__":
     captions_list = t_file.raw_txt
     embeddings = np.concatenate(t_file.fea_txt, axis=0)
     num_embeddings = len(captions_list)
-    print('Successfully load sentences from: ', cap_path)
-    print('Total number of sentences:', num_embeddings)
-    print('num_embeddings:', num_embeddings, embeddings.shape)
+    #print('Successfully load sentences from: ', cap_path)
+    #print('Total number of sentences:', num_embeddings)
+    #print('num_embeddings:', num_embeddings, embeddings.shape)
     # path to save generated samples
     save_dir = cap_path[:cap_path.find('.t7')]
     if num_embeddings > 0:
@@ -220,4 +222,4 @@ if __name__ == "__main__":
         print('Finish generating samples for %d sentences:' % num_embeddings)
         print('Example sentences:')
         for i in xrange(np.minimum(10, num_embeddings)):
-            print('Sentence %d: %s' % (i, captions_list[i]))
+           print('Sentence %d: %s' % (i, captions_list[i]))
